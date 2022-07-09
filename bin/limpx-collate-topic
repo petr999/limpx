@@ -1,0 +1,295 @@
+#!/usr/bin/env perl
+#
+# ABSTRACT: make single topic file
+#
+### MODULES ###
+#
+# Helps you to behave
+use strict;
+use warnings;
+
+# Ability to say()
+use feature qw{say};
+
+# Dies on i/o errors
+use autodie;
+
+# Converts between charsets
+require Convert::Cyrillic;
+
+# Reads and writes files
+require File::Slurp;
+
+# Searches questions inside topics' directories
+require File::Find;
+
+# Fetches inline images
+require WWW::Mechanize::GZip;
+
+# Encodes images to 'base64'
+require MIME::Base64;
+
+### SUBS ###
+#
+# Procedure
+# outputs questions to file handle
+# Takes     : Scalar file handle opened for output,
+#             Str name of topic input file
+# Requires  : File::Slurp, File::Find, WWW::Mechanize::GZip, Carp
+#               Mime::Base64 modules
+# Depands   : On 
+# Changes   : file system contents
+# Returns   : n/a
+sub print_questions {
+    my( $fh => $topic_ifname ) = @_;
+    my $mech = WWW::Mechanize::GZip->new( qw{autocheck 1} );
+
+    my $dname = $topic_ifname =~ s{\.html$}{}gr;
+
+    my $questions = {};
+
+    File::Find::find( { 'wanted' => sub{
+
+        no warnings qw{once};
+        my $fname = $File::Find::name;
+        if(
+            $fname =~ m{/javascript[^/]+%2C(\d+)%.{5}\.html$}ig
+            and
+            -f $fname
+        ){
+            my $num = $1;
+            my $str = File::Slurp::read_file( $fname );
+            $str =~ s{^.*<my:qtext[^>]*>|<input\s[^>]*type=['"]?button['"]?.*$}{}isg;
+            my ( $qtext => @radios ) =
+                split /<input\s[^>]*type=['"]?(?:radio|checkbox)['"]?\s/is, $str;
+            Carp::croak( "No radios for: $fname" )
+              unless @radios;
+
+            # Get values for radios
+            my @values;
+            foreach my $radio ( @radios ){
+
+                # Find if variant is correct
+                Carp::croak( "No value match for radio: $radio!" )
+                  unless $radio =~ s{value=['"](\d+)['"][^>]*>}{}i;
+                my $value = $1;
+                push @values, $value;
+            }
+
+            # warn Data::Dumper::Dumper( $qtext => @radios );
+
+            my @question;
+            foreach my $str ( $qtext => @radios ){
+
+                # Find inline images in qtext and radios
+                my @str_arr = split /<img\s/is, $str;
+                # warn Data::Dumper::Dumper( @str_arr );
+
+                my @str_arr_new;
+                foreach my $str_part ( @str_arr ){
+
+                    # Find source link of inline image
+                    if ( $str_part =~ m{^[^<]*>} ){
+                        if ( $str_part =~ s{[^>]*src=['"]?([^>'"]+)['"]?[^>]*>}{}is ){
+                            my $src = "http://85.113.35.70:85/$1";
+
+                            # Get image and out it into html
+                            $mech->get( $src );
+                            my $image = $mech->content;
+                            my $src_attr;
+                            if( length $image ){
+                                $image = MIME::Base64::encode_base64( $image );
+                                $src_attr = "data:image/gif;base64, $image";
+                            } else {
+                                warn "Empty image: $src\n( $fname )";
+                                $src_attr = $src;
+                            }
+
+                            # Change $str_part to contain base64-encoded
+                            # image
+                            $str_part =~ s{<[^>]*>}{}sg;
+
+                            # put img element with src attribite
+                            $str_part = "
+                                <img src='$src_attr'>
+                                $str_part
+                                ";
+                        } else {
+
+                            # croak() on unclosed tag found when it's not image
+                            warn $str_part;
+                            Carp::croak( 'No match for image source link!' )
+                        }
+                    } else {
+
+                            # No image found; strip tags
+                            $str_part =~ s{<[^>]*>}{}sg;
+                    }
+                    $str_part =~ s{^\s+|\s+$}{}sg;
+
+                    # Glue back text with images
+                    push @str_arr_new, $str_part;
+                }
+
+                # Both qtext and variants are in @question
+                $str = join '' => @str_arr_new;
+                push @question, $str;
+            }
+            $qtext = shift @question;
+
+
+
+            # $str =~ m{([а-яА-Я][^<]*)<[^а-яА-Я]*(<input\s[^>]*type=radio\s[^>]*>)}imsg;
+            # $str =~ m{([^<]*)<[^а-яА-Я]*(<input\s[^>]*type=radio\s[^>]*>)}imsg;
+
+                # my ( $tag, $subtag, $subsubtag, $qtext ) =
+                # $str =~ m{^.*<(my:qtext|strong)[^>]*>(</?(div|span)[^>]*>)*([^<]+)<}imsg;
+                # $questions->{ $num } = $qtext;
+                # print $str unless defined $qtext;
+
+                # say $qtext;
+                # require Data::Dumper; print Data::Dumper::Dumper( @question );
+
+            $questions->{ $num } = {
+                'qtext' => $qtext,
+                'variants' => \@question,
+                'values' => \@values,
+            };
+        }
+    } }, $dname );
+
+    my $i = 0;
+    my $questions_amount = 0 + keys %$questions;
+    foreach my $num ( sort { $a <=> $b } keys %$questions ){
+        my $question = $questions->{ $num };
+        my $qtext = $question->{ 'qtext' };
+        $i ++ ;
+
+        # Break page after every 5th question
+        my $question_css_class = ( $i % 5 )
+            ? 'question'
+            : 'question'
+        ;
+        say $fh <<END_OF_QUESTION_HEADING;
+<div class="$question_css_class">
+<h3><span class="question-number">Вопрос $i из $questions_amount</span>
+<br>
+$qtext
+</h3>
+<table border="0">
+END_OF_QUESTION_HEADING
+
+        my $variants = $question->{ 'variants' };
+        my $values = $question->{ 'values' };
+        for( my $j = 0; $j < @$variants; $j ++ ){
+            my( $variant => $value ) = ( $variants->[ $j ] => $values->[ $j ] );
+            # my $radio = "<input type='radio'"
+            #     . (
+            #         ( $value eq "0" )
+            #             ? ''
+            #             : ' checked'
+            #     ) . ">";
+            my $radio = ( $value eq "0" ) ? "&#x25CB;" : "&#x25C9;";
+            say $fh <<END_OF_VARIANT;
+<tr>
+<td class="radio">
+    $radio
+</td>
+<td class="variant">
+    $variant
+</td>
+</tr>
+END_OF_VARIANT
+        }
+        say $fh "</table>\n</div>";
+    }
+}
+
+### MAIN ###
+#
+# Input line and get topic name
+# my $str = do { local $/; <>;};
+foreach my $topic_ifname ( @ARGV ){
+  my $str = File::Slurp::read_file( $topic_ifname );
+  if( $str =~ m{^.*<h5[^>]*>([^<]+)</h5>.*<h5[^>]*>([^<]+)<.*$}msgi ) {
+
+    ## Find course/topic, dir/file names
+    my( $course => $topic ) = ( $1 => $2 );
+    s{^\s+|\s+$}{}g foreach ( $course => $topic );
+    my $course_code = $course =~ s{^\s*([^\s]+)\s+([^\s]+)\.(\s.*)$}{$1-$2}r;
+    my $course_name = $3;
+    $course_name =~ s{^\s+|\s+$}{}g;
+    $course_name =~ s{\s}{-}g;
+
+    # Directory name out of course code
+    my $dname = Convert::Cyrillic::cstocs( 'utf8' => 'vol',
+        $course_code . "_-_$course_name");
+    $dname = lc $dname;
+    $dname =~ s{[^\w\d\.-]}{}g;
+    $dname="/tmp/courses-collate/$dname";
+    -d $dname or mkdir $dname; # use autodie;
+
+    # File name out of topic name
+    my $fname = Convert::Cyrillic::cstocs( 'utf8' => 'vol', $topic );
+    $fname =~ s{[^\w\d]+}{-}g;
+    $fname = "$dname/$fname.html";
+
+    # Write course and topic headers
+    open my $fh, '>' => $fname; # use autodie;
+    print $fh <<HEADING;
+    <html>
+    <meta charset="utf-8">
+    <title>$topic ($course)</title>
+    <style><!--
+        * { font-family: Sans, DejaVu Sans, Verdana; font-size: 8pt;
+            vertical-align: top;
+            margin-top: -0.2em;
+            margin-bottom: -0.3em;
+            line-height: 0.7em;
+        }
+        html,body {
+            padding: 0;
+            margin: 0;
+        }
+        h1,h2 {
+            line-height: 1.2em;
+            margin-top: 0;
+        }
+        h3 {
+            margin-top: 0.2em;
+            margin-bottom: 0;
+            margin-top: -0.5em;
+            margin-bottom: -0.5em;
+        }
+        h1,h2,h3 {
+            text-align: center;
+        }
+        .question-number {
+            font-weight: normal;
+        }
+        table {
+            width: 100%;
+            border: 0;
+        }
+        .radio {
+            width: 0;
+        }
+        .variant {
+            width: 100%;
+        }
+        .question {
+          page-break-inside: avoid;
+        }
+    --></style>
+    <h1>Курс: $course</h1>
+    <h2>$topic</h2>
+HEADING
+
+    print_questions( $fh => $topic_ifname );
+
+    print $fh <<FOOTING;
+    </html>
+FOOTING
+    close $fh;
+  }
+}

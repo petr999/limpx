@@ -1,0 +1,46 @@
+<div class="question">
+  <h3>
+    {$num}. {$qtext}
+  </h3>
+
+    {
+        for( my $i = 0; $i < @variants; $i ++ ){
+            my $variant = $variants[ $i ];
+            my $variant_checked = $checked[ $i ];
+
+            # List class  depends  on  if  variant  is  checked  and  if
+            # question suppose multiplicity
+            $OUT .=  '<p';
+            my @li_classes;
+            if(  $variant_checked  ){  push  @li_classes,  'checked';  }
+            if( $multiplicity ){  push  @li_classes,  'multiplicity';  }
+            if( @li_classes ){
+                $OUT.=   ' class="'   .  join( ' '    => @li_classes,) . '"';
+            }
+            $OUT .= '>';
+            $OUT .= '<span class="input_shape">';
+
+            my $input_char;
+            if( $variant_checked ){
+                if( $multiplicity ){
+                    $input_char = '&#x2714;';
+                } else {
+                    # $input_char = '&#10687;';
+                    $input_char = '&#x25CF;';
+                }
+            } else {
+                if( $multiplicity ){
+                    $input_char = '&#x2610;';
+                } else {
+                    # $input_char = '&#10686;';
+                    $input_char = '&#x25CB;';
+                }
+            }
+            $OUT .= $input_char;
+
+            $OUT .= '</span>';
+            $OUT .= $variant;
+            $OUT .= "</p>\n";
+        }
+    }
+</div>

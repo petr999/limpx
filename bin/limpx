@@ -1,0 +1,129 @@
+#!/usr/bin/env perl
+#
+# ABSTRACT: Grab course(s) from limpx
+#
+### MODULES ###
+#
+# Helps you to behave
+use strict;
+use warnings;
+
+# Die on I/O errors
+use autodie;
+
+# Die more nicely
+require Carp;
+
+# Able to write files
+require File::Slurp;
+
+# Can encode URLs so they may be file names
+require URI::Escape;
+
+# Seem to be able to perform task
+require WWW::Mechanize::GZip;
+
+### MAIN ###
+#
+# Init Mech
+my $mech = WWW::Mechanize::GZip->new( qw{autocheck 1} );
+$mech->get( $ENV{'LIMPX_SCHEME_HOST_PORT'} . '/?examinate' );
+
+# Submit course select form
+$mech->submit_form( 'with_fields' => {
+        qw{grpnum 140020276},
+   },
+);
+
+# Submit login form
+my $form = $mech->form_with_fields( qw{ plogin ppasswd }, );
+
+# Tweak fields, the what js seem to do
+$form->find_input( 'type' )->disabled(1);
+$form->push_input( 'hidden', { qw{ name mode id mode value defprofile } } );
+$form->action( $ENV{'LIMPX_SCHEME_HOST_PORT'} . '/?selftraining' );
+
+# Submit login and password
+$mech->set_fields( qw{
+              plogin    => $ENV{'LIMPX_USERNAME'},
+              ppasswd   => $ENV{'LIMPX_PASSWORD'},
+} );
+$mech->submit;
+
+# Get url with list of courses
+my $content = $mech->response->content;
+Carp::croak( 'No cookie-required doc url seem to be found' )
+    unless $content =~ m{'(\?treeview&curprof=[^']+)'};
+
+# Redirect to courses choice page
+my $url=$ENV{'LIMPX_SCHEME_HOST_PORT'} . "/$1";
+$mech->get( $url );
+
+# Reverse links cause wanted is at the end
+foreach my $course_link ( reverse $mech->links ){
+
+    # List courses of every set
+    $mech->get( $course_link );
+
+    # Create directory and put file
+    my $course_dname = URI::Escape::uri_escape( $course_link->url );
+    $course_dname = "/tmp/courses-downloaded/$course_dname";
+    my $course_fname = "$course_dname.html";
+    system qw{mkdir -p}, $course_dname; # use autodie;
+    File::Slurp::write_file( $course_fname, {binmode => ':bytes'}, $mech->content ); # use autodie;
+
+    my $topic_links = $mech->find_all_links(
+            'url_regex' => qr{mode=showmaterial},
+        );
+
+    foreach my $topic_link ( @$topic_links ){
+
+        # List topics of every course
+        $mech->get( $topic_link );
+
+        # Create directory and put file
+        my $topic_dname = URI::Escape::uri_escape( $topic_link->url );
+        $topic_dname = "$course_dname/$topic_dname";
+        my $topic_fname = "$topic_dname.html";
+        system qw{mkdir -p}, $topic_dname; # use autodie;
+        File::Slurp::write_file( $topic_fname, {binmode => ':bytes'}, $mech->content ); # use autodie;
+
+        my $pages=$mech->find_all_links( 
+                'text_regex' => qr{^\d+-\d+$},
+             );
+        unshift( @$pages, $topic_link );
+
+        foreach my $page_link ( @$pages ){
+
+            # List pages of every topic
+            $mech->get( $page_link );
+
+            # Create directory and put file
+            my $page_dname = URI::Escape::uri_escape( $page_link->url );
+            $page_dname = "$topic_dname/$page_dname";
+            my $page_fname = "$page_dname.html";
+            system qw{mkdir -p}, $page_dname; # use autodie;
+            File::Slurp::write_file( $page_fname, {binmode => ':bytes'}, $mech->content ); # use autodie;
+
+            my $question_links = $mech->find_all_links(
+                    'url_regex' =>
+                        qr{javascript:showVPR\(\d+,\d+\);},
+                );
+
+            foreach my $question_link ( @$question_links ){
+
+                # List every question for topic
+                my $url = $question_link->url;
+                $url =~ s{^[^\d]+(\d+)[^\d].*$}{$1};
+                $url = $ENV{'LIMPX_SCHEME_HOST_PORT'} . "/?vopros&newvopros=$url";
+                $mech->get( $url );
+
+                # Put file
+                my $question_dname = URI::Escape::uri_escape( $question_link->url );
+                $question_dname = "$page_dname/$question_dname";
+                my $question_fname = "$question_dname.html";
+                File::Slurp::write_file( $question_fname, {binmode => ':utf8'}, $mech->content ); # use autodie;
+            }
+        }
+    }
+}

@@ -1,0 +1,90 @@
+#!/usr/bin/env perl
+# Runs 'Limpx Attend' application
+# ABSTRACT: Make html human-readable files one per course from collated
+#
+# Copyright (C) 2016 No One
+# All rights reserved.
+#
+
+# Helps you to behave
+use strict;
+use warnings;
+
+### MODULES ###
+#
+# Plugs your modules' directory
+use lib::abs '../lib';
+
+# Loads main app module
+require App::Limpx;
+
+# Catches exceptions
+# use Try::Tiny;
+
+### CONSTANTS ###
+#
+# Makes constants possible
+# use Const::Fast;
+
+# (Enter constant description here)
+# const my $SOME_CONST => 1;
+
+### SUBS ###
+#
+### MAIN ###
+# Require   :   App::Limpx
+#
+# Enter the execution point of the module
+App::Limpx::attend(@ARGV);
+
+__END__
+
+=pod
+
+=head1 NAME
+
+limpx_attend - attend to courses from collate limpx info
+
+=head1 USAGE
+
+This attends every downloaded limpx topic:
+
+    ./bin/limpx_collate
+
+=head1 REQUIRED ARGUMENTS
+
+None yet by so far.
+
+=head1 OPTIONS
+
+None yet.
+
+=head1 DESCRIPTION
+
+This binary reads every collate topic file from colate course contents
+directory and puts their contents onto the output files, one per course
+inside the attend course directory.
+
+=head1 DIAGNOSTICS
+
+On every real error, typically the disc i/o or text parsing error, the
+message is printed to standard error output handle and binary exits with
+non-zero exit code.
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Every possible configureation tweak is supposed to be done via the
+constants' statements. This includes but not limited to, directories to
+read and write files.
+
+=head1 DEPENDENCIES
+
+This binary requires perl version 5.12 as the least. Required modules
+are: L<lib::abs>, L<Const::Fast> et alumni.
+
+=head1 BUGS AND LIMITATIONS
+
+This produces only the given output that consists of information usable
+to read by human.
+
+=cut

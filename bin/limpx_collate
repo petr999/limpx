@@ -1,0 +1,107 @@
+#!/usr/bin/env perl
+# Runs 'Limpx Collate' application
+# ABSTRACT: Make html human/comp readable files out of downloaded limpx
+#
+# Copyright (C) 2016 No One
+# All rights reserved.
+#
+
+# Helps you to behave
+use strict;
+use warnings;
+
+### MODULES ###
+#
+# Plugs your modules' directory
+use lib::abs '../lib';
+
+# Loads main app module
+require App::Limpx;
+
+# Catches exceptions
+# use Try::Tiny;
+
+### CONSTANTS ###
+#
+# Makes constants possible
+# use Const::Fast;
+
+# (Enter constant description here)
+# const my $SOME_CONST => 1;
+
+### SUBS ###
+#
+### MAIN ###
+# Require   :   App::Limpx
+#
+# Enter the execution point of the module
+App::Limpx::collate(@ARGV);
+
+__END__
+
+=pod
+
+=head1 NAME
+
+limpx_collate - collate downloaded limpx info
+
+=head1 USAGE
+
+This collates every downloaded limpx topic:
+
+    ./bin/limpx_collate
+
+This collates selected course only:
+
+    ./bin/limpx_collate /tmp/course.html
+
+=head1 REQUIRED ARGUMENTS
+
+None yet by so far.
+
+=head1 OPTIONS
+
+Optional argument is the downloaded course file.
+
+=head1 DESCRIPTION
+
+This binary reads every downloaded course file together with course
+contents directory and files therein and puts their contents onto the
+output files, one per topic inside the course directory.
+
+This may or may not accept input course file as its argument. If no
+course file supplied then every file listed in downloaded courses
+directory is searched on topics and questions.
+
+=head1 DIAGNOSTICS
+
+On every in-text picture not found on server, the message should be
+printed to standard error output.
+
+On every real error, typically the disc i/o or text parsing error, the
+message is printed to standard error output handle and binary exits with
+non-zero exit code.
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Every possible configuration tweak is supposed to be done via the
+constants' statements. This includes but not limited to, directories to
+read and write files.
+
+=head1 DEPENDENCIES
+
+This binary requires perl version 5.12 as the least. Required modules
+are: L<lib::abs>, L<Const::Fast>, L<WWW::Mechanize::Gzip> et alumni.
+
+=head1 INCOMPATIBILITIES
+
+This stuff is made possible for (almost) any design or surf layout
+change of downloaded files. Promblem is if you change semantic layout
+then machine-readability of the outpot files will be the question.
+
+=head1 BUGS AND LIMITATIONS
+
+This produces only the given output that consists of information usable
+to read by human but most important by subsequent output formatter(s).
+
+=cut

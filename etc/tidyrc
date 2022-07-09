@@ -1,0 +1,9 @@
+wrap: 76
+char-encoding: utf8
+doctype: omit
+quiet: yes
+# show-warnings: no
+tidy-mark: no
+indent: yes
+output-html: yes
+preserve-entities: yes

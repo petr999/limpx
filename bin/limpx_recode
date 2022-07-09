@@ -1,0 +1,31 @@
+#!/bin/sh
+#
+# ABSTACT: Recode downloadeed 'html' files to unicode
+#
+####### TO BE PLACED AS 'bin/limpx_recode' ###########
+#
+# recode(1) has an unobvious behavior to fail with core dump on some
+# (or longer) file names
+#
+# Some files are encoded as 'windows-1251' and some are not, e. g., the
+# 'javascript' ones.
+#
+#
+# Keep directory name to restore it later
+old_dname=`pwd`;
+
+# Find every file but not of 'javascript' url scheme
+for fname in `find /tmp/courses-downloaded/ -type f \! -iname 'javascript*'`
+do
+  dname=`dirname "${fname}"`v
+  bname=`basename "${fname}"`;
+
+  # Base name is short enough to keep recode(1) to segfault in 'strncmp'
+  # of 'libc.so', so change current working directory first, then
+  # recode(1).
+  cd ${dname}
+  recode -f 1251..utf-8 ${bname}
+done;
+
+# Restore user's current directory
+cd ${old_dname}
