@@ -27,7 +27,8 @@
 
 - печать - по 5 вопросов на страницу a4 - при желании можно
   предварительно слить все свои HTML в один файл, а после - распечатать
-  его в виде брошюры A5.
+  его в виде брошюры A5
+  ([пример](https://limpx-dump.vereshagin.org/courses-pdf/eb-1254.2_-_podgotovka-i-proverka-znanij-rukovoditelej-specialistov-elektrotexnicheskogo-i-elektrotexnologicheskogo-personala-organizacij-osuwestvlyayuwix-ekspluataciyu-elektroustanovok-potrebitelej-ii-gruppa-po-elektrobezopasnosti-do-1000-v/Tema-1-Pravila-ustrojstva-e-lektroustanovok.pdf)).
 
 Где-то после скачивания прогоняется перекодировщик из windows-1251 в
 utf-8. Кажется, он меняет файлы безвозвратно, так что сделать резервную
