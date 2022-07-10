@@ -9,7 +9,7 @@
 - правильный ответ помечен среди неправильных;
 - возможность распечатки.
 
-# Стадии работы с данными (data flow)
+## Стадии работы с данными (data flow)
 
 Хранилище файловое, каталоги создаются в /tmp, можете поменять в
 исходнике себе это значение на нужное.
@@ -34,7 +34,7 @@
 utf-8. Кажется, он меняет файлы безвозвратно, так что сделать резервную
 копию перед этим бывает не лишне.
 
-# Как запускать
+## Как запускать
 
 Поставьте Perl. Если у вас windows - берите от
 [Cygwin](https://cygwin.com), но можно и другой. Версию можно и не
@@ -51,13 +51,13 @@ utf-8. Кажется, он меняет файлы безвозвратно, т
 - `limpx_collate` 
 - `limpx-collate-topic`
 
-# Бизнес-модель
+## Бизнес-модель
 
 Вполне возможно, вам будут рады с этим во вконтакте. Я бы, может, и рад
 побарыжить, да пароли протухли. Заново не скачаешь, а билеты уж все
 другие.
 
-# Final Outcome
+## Final Outcome
 
 and its stages are introduced on <https://limpx-dump.vereshagin.org>:
 
@@ -70,12 +70,12 @@ and its stages are introduced on <https://limpx-dump.vereshagin.org>:
 - [printables](https://limpx-dump.vereshagin.org/courses-pdf/eb-1254.2_-_podgotovka-i-proverka-znanij-rukovoditelej-specialistov-elektrotexnicheskogo-i-elektrotexnologicheskogo-personala-organizacij-osuwestvlyayuwix-ekspluataciyu-elektroustanovok-potrebitelej-ii-gruppa-po-elektrobezopasnosti-do-1000-v/)
   example of a single role's PDF materials to study.
 
-# Баги
+## Баги
 
 Были выявлены в олимпоксе. О, немало. Ну и кто их там будет фиксить.
 Помогли ли они мне сдать на вторую группу электробезопасности до 1000 В?
 Оценка "отлично".
 
-# Author, license
+## Author, license
 
 Peter Vereshagin <peter@vereshagin.org>, 3-clause BSD
