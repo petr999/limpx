@@ -47,7 +47,7 @@ $LIMBXXX = lib::abs::path("../../../../../$LIMBXXX");
 const $LIMBXXX => $LIMBXXX;
 
 # Base URL to fetch images from
-const my $BASE_URL => 'http://85.113.35.70:85';
+const my $BASE_URL => $ENV{'LIMPX_SCHEME_HOST_PORT'};
 
 # Directory that keeps templates to render
 # Requires  : lib::abs module
