@@ -1,8 +1,8 @@
 # Олимпокс распечатка вопросов к экзаменам Роспотребнадзора
 
 Для сдачи экзаменов по электробезопасности курсантам предлагается
-online-система. В системе 2 режима - подготовительная сдача и просмотр
-правильных ответов. 
+[online-система](https://pandia.ru/text/81/301/22443.php). В системе 2
+режима - подготовительная сдача и просмотр правильных ответов. 
 
 Для удобства заучивания материал оформлен с учётом следующего:
 
@@ -52,21 +52,28 @@ utf-8. Кажется, он меняет файлы безвозвратно, т
 
 # Бизнес-модель
 
-Вполне возможно, вам будут рады с этим во вконтакте. Я бы, может, и рад побарыжить, да пароли протухли. Заново не скачаешь, а билеты уж все другие.
+Вполне возможно, вам будут рады с этим во вконтакте. Я бы, может, и рад
+побарыжить, да пароли протухли. Заново не скачаешь, а билеты уж все
+другие.
 
 # Final Outcome
 
 and its stages are introduced on <https://limpx-dump.vereshagin.org>:
 
-- [downloaded](https://limpx-dump.vereshagin.org/courses-downloaded/) HTML files as they are;
-- [topics](https://limpx-dump.vereshagin.org/courses-collate/) HTML joined quizzes
+- [downloaded](https://limpx-dump.vereshagin.org/courses-downloaded/)
+  HTML files as they are;
+- [topics](https://limpx-dump.vereshagin.org/courses-collate/) HTML
+  joined quizzes
 - [courses](https://limpx-dump.vereshagin.org/courses-attend/)
   attendee-oriented joint HTML single file, ready to print;
-- [printables](https://limpx-dump.vereshagin.org/courses-pdf/eb-1254.2_-_podgotovka-i-proverka-znanij-rukovoditelej-specialistov-elektrotexnicheskogo-i-elektrotexnologicheskogo-personala-organizacij-osuwestvlyayuwix-ekspluataciyu-elektroustanovok-potrebitelej-ii-gruppa-po-elektrobezopasnosti-do-1000-v/) example of a single role's PDF material to study.
+- [printables](https://limpx-dump.vereshagin.org/courses-pdf/eb-1254.2_-_podgotovka-i-proverka-znanij-rukovoditelej-specialistov-elektrotexnicheskogo-i-elektrotexnologicheskogo-personala-organizacij-osuwestvlyayuwix-ekspluataciyu-elektroustanovok-potrebitelej-ii-gruppa-po-elektrobezopasnosti-do-1000-v/)
+  example of a single role's PDF materials to study.
 
 # Баги
 
 Были выявлены в олимпоксе. О, немало. Ну и кто их там будет фиксить.
+Помогли ли они мне сдать на вторую группу электробезопасности до 1000 В?
+Помолчим об этом.
 
 # Author, license
 
